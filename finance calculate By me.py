@@ -39,10 +39,16 @@ def findPMTbyFV(FV,I,N):
 
 import math
 def NbyFVPV(FV,PV,I):
+    if PV == 0:
+        NOdata = print("อย่าใส่ 0")
+        return NOdata
     K = I/100
     N = (math.log(FV/PV))/(math.log(1+K))
     return N
 def NbyPMTandFV(PMT,FV,I):
+    if PMT == 0:
+        NOdata = print("อย่าใส่ 0")
+        return NOdata
     K = I/100
     N = (math.log(((FV*K)/PMT)+1))/(math.log(1+K))
     return N
@@ -141,3 +147,9 @@ def IRR(NPV_Data,invest,I):
         else:
             low = I
     return I * 100
+
+HowcalculateFVPV = [c_FV,c_PV]
+HowcalculatePMT = [findFVfirstbyPMT,findFVlastbyPMT,findPVfirstbyPMT,findPVlastbyPMT,findPMTbyFV,findPMTbyPV]
+HowcalculateN = [NbyFVPV,NbyPMTandFV,NbyPMTandPV]
+HowcalculateI = [IbyFVPV,IbyPMTandFV_AnnuityDue,IbyPMTandFV_end,IbyPMTandPV_AnnuityDue,IbyPMTandPV_end]
+HowcalculateNPV_IRR = [NPV,IRR]
