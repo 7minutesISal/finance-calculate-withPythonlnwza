@@ -1,5 +1,7 @@
 
 MYlist = []
+invest = []
+data_NPV = []
 import math
 
 class calculateFun :
@@ -57,22 +59,31 @@ class calculateN(calculateFun):
         down = (math.log(1+self.i))
         return -top / down
     
-class findI(calculateFun): #this is not correct, lt still not work
-    def findIByPMT(self):
-        return self.pmt * ((((1+I)**self.n) - 1) / I)
+class findI(calculateFun):
+    def calculateMiddeFV_PMT(self,I,mode="last"):
+        guess = self.pmt * ((((1+I)**self.n) - 1) / I)
+        if mode == "first" :
+            guess = guess * (1+I)
+        return guess
+    
+    def calculateMiddePV_PMT(self,I,mode="last"):
+        guess = self.pmt * ((1 - (1 / ((1+I)**self.n))) / I)
+        if mode == "first" :
+            guess = guess * (1+I)
+        return guess
         
     def findIByPVFV(self):
         I = ((self.fv/self.pv)**(1/self.n)) - 1
         return I
     
-    def findIByPMTandFVlast(self): 
+    def findIByPMTandFVlast(self,mode="last"): 
         low = 0.0001
         high = 1.00
         for i in range(100):
             I = (low + high) / 2
             if I == 0:
                 continue
-            guess = self.findIByPMT()
+            guess = self.calculateMiddeFV_PMT(I,mode=mode)
             if guess > self.fv:
                 high = I
             else:
@@ -80,20 +91,55 @@ class findI(calculateFun): #this is not correct, lt still not work
         I = I * 100
         return I
     
-    def findIByPMTandFVfirst(self):
+    def findIByPMTandFVfirst(self): 
+        I = self.findIByPMTandFVlast(mode="first")
+        return I
+    
+    def findIByPMTandPVlast(self,mode="last"):
         low = 0.0001
         high = 1.00
         for i in range(100):
             I = (low + high) / 2
             if I == 0:
                 continue
-            guess = self.findIByPMT() * (1+I)
-            if guess > self.fv:
+            guess = self.calculateMiddePV_PMT(I,mode=mode)
+            if guess < self.pv:
                 high = I
             else:
                 low = I
         I = I * 100
         return I
+    
+    def findIByPMTandPVfirst(self):
+        I = self.findIByPMTandPVlast(mode="first")
+        return I
+class NPV_IRR(calculateFun):#not can work yet
+    def NPV(self,data_NPV,invest):
+        totalNPV = 0
+        NPVcalculatereally = []
+        NPVcalculatereally.clear()
+        for i in range(len(data_NPV)):
+            pv = data_NPV[i] * (1 / (1+self.i)**(i+1))
+            NPVcalculatereally.append(pv)
+            print(f"เท่ากับ{NPVcalculatereally[i]}")
+            totalNPV = totalNPV + pv
+        totalNPV = totalNPV - invest
+        return totalNPV
+    
+    def IRR(self,data_NPV,invest):
+        low = 0.0001
+        high = 1.00
+        for i in range(100):
+            totalinvest = invest
+            I = (low + high) / 2
+            for t in range(len(data_NPV)):
+                guess = data_NPV[t] * (1 / ((1 + I) ** (t+1)))
+                totalinvest = totalinvest + guess
+            if totalinvest > 0:
+                high = I
+            else:
+                low = I
+        return I * 100
     
 class taxcalculate:
     def calculate_tax(self,datavalue):
